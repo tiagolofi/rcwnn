@@ -1,0 +1,20 @@
+
+require(tidyverse)
+require(quantmod)
+require(forecast)
+
+stocks_nn <- function(ticker){
+  cat("baixando dados...\n")
+  stock <- getSymbols(ticker, from = "2020-04-01", warnings = T, auto.assign = F)
+  stock <- stock[,4]
+  rent30 <- diff(log(stock), 15)*100
+  rent30_train <- window(rent30, end = "2021-01-01")
+  
+  cat("treinando o modelo...\n")
+  model <- nnetar(rent30_train)
+  
+  cat("visualizando resultados...\n")
+  cowplot::plot_grid(autoplot(forecast(model), h = 30),
+                     autoplot(rent30), nrow = 2)
+  
+}
